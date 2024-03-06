@@ -1,5 +1,46 @@
 # frozen_string_literal: true
 
-class Game
+require_relative 'board'
 
+class Game
+  attr_reader @current_player, @board, @winner
+
+  def initialize
+    @current_player = 'white'
+    @board = Board.new
+  end
+
+  def play
+    introduction
+    board.show
+    turns
+    conclusion
+  end
+
+  private
+
+  def introduction
+    puts "Welcome to command line Chess! It's a tough game, so good luck!"
+  end
+
+  def turns
+    until board.mate?
+      turn(current_player)
+      break if board.stalemate?
+      
+      switch_current_player
+    end
+  end
+
+  def switch_current_player
+    @current_player = @current_player == 'white' ? 'black' : 'white'
+  end
+
+  def conclusion
+    if board.mate?
+      puts "#{winner} team wins!"
+    elsif board.stalemate?
+      puts "A draw!"
+    end
+  end
 end
