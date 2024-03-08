@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'colorize'
+
 class Queen
   MOVE_DIRECTIONS = [
     [+1, -1], [+1, 0], [+1, +1], [0, +1], [-1, +1], [-1, 0], [-1, -1], [0, -1]
@@ -13,9 +15,9 @@ class Queen
 
   def to_s
     if color == 'white'
-      '♛'
+      ' ♛ '
     elsif color == 'black'
-      '♛'.to_black
+      ' ♛ '.black
     end
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'colorize'
+
 class Knight
   MOVE_DIRECTIONS = [
     [+2, -1], [+2, +1], [+1, +2], [-1, +2], [-2, +1], [-2, -1], [-1, -2], [+1, -2]
@@ -13,9 +15,9 @@ class Knight
 
   def to_s
     if color == 'white'
-      '♞'
+      ' ♞ '
     elsif color == 'black'
-      '♞'.to_black
+      ' ♞ '.black
     end
   end
 end

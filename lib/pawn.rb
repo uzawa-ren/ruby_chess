@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'colorize'
+
 class Pawn
   MOVE_DIRECTIONS = {
     move: [+1, 0],
@@ -16,9 +18,9 @@ class Pawn
 
   def to_s
     if color == 'white'
-      '♙'
+      ' ♙ '
     elsif color == 'black'
-      '♟︎'.to_black
+      ' ♟︎'.black
     end
   end
 
