@@ -32,14 +32,11 @@ class Board
     ]
   end
 
-  def show(possible_moves = nil)
+  def show(possible_moves = [])
     cell_index = 0
     row_index = 0
     cells.each do |row|
-      row.each_value do |cell|
-        print_cell(cell_index, row_index, cell, possible_moves)
-        cell_index += 1
-      end
+      print_row(cell_index, row_index, row, possible_moves)
       puts ''
       row_index += 1
     end
@@ -47,8 +44,15 @@ class Board
 
   private
 
+  def print_row(cell_index, row_index, row, possible_moves)
+    row.each_value do |cell|
+      print_cell(cell_index, row_index, cell, possible_moves)
+      cell_index += 1
+    end
+  end
+
   def print_cell(cell_index, row_index, cell, possible_moves)
-    if possible_moves&.include?
+    if possible_moves.include?
       highlight_cell(cell_index, row_index, cell)
     else
       not_highlight_cell(cell_index, row_index, cell)

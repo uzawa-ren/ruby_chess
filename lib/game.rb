@@ -17,6 +17,15 @@ class Game
     conclusion
   end
 
+  def turn
+    figure_to_move = user_input # => a2
+    next_moves = board.possible_moves(figure_to_move)
+    board.show(next_moves)
+    coord_to_move = user_input # => a4
+    board.move(coord_to_move)
+    board.show
+  end
+
   private
 
   def introduction
@@ -27,7 +36,7 @@ class Game
     until board.mate?
       turn(current_player)
       break if board.stalemate?
-      
+
       switch_current_player
     end
   end
@@ -40,7 +49,7 @@ class Game
     if board.mate?
       puts "#{winner} team wins!"
     elsif board.stalemate?
-      puts "A draw!"
+      puts 'A draw!'
     end
   end
 end
