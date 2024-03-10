@@ -13,6 +13,14 @@ class Rook
     @color = color
   end
 
+  def self.move_directions
+    MOVE_DIRECTIONS
+  end
+
+  def self.moves_linearly?
+    true
+  end
+
   def to_s
     if color == 'white'
       ' ♜ '

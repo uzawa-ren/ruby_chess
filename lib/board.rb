@@ -7,8 +7,10 @@ require_relative 'knight'
 require_relative 'pawn'
 require_relative 'queen'
 require_relative 'rook'
+require_relative 'displayable'
 
 class Board
+  include Displayable
   attr_reader :cells
 
   def initialize # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
@@ -17,8 +19,7 @@ class Board
         a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
         e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
       },
-      { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
-        e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
+      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
       { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
       { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
       { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
@@ -42,78 +43,76 @@ class Board
     end
   end
 
+  def possible_moves(coord)
+    piece = piece_obj_from_coord(coord)
+    return if piece.is_a?(String)
+
+    directions = piece.class.move_directions
+    find_all_moves(coord, directions, piece.class)
+  end
+
   private
 
-  def print_row(cell_index, row_index, row, possible_moves)
-    row.each_value do |cell|
-      print_cell(cell_index, row_index, cell, possible_moves)
-      cell_index += 1
+  def piece_obj_from_coord(coord)
+    cells[coord[0]][coord[1]]
+  end
+
+  def find_all_moves(coord, directions, piece_class)
+    result_array = []
+    directions.each do |direction|
+      if piece_class.moves_linearly?
+        find_line_of_next_moves(coord, direction, result_array)
+      else
+        result_array << find_next_coord(coord, direction)
+      end
+    end
+    result_array
+  end
+
+  def find_line_of_next_moves(coord, direction, result_array)
+    next_coord = find_next_coord(coord, direction)
+    until invalid?(next_coord)
+      result_array << next_coord
+      next_coord = find_next_coord(next_coord, direction)
     end
   end
 
-  def print_cell(cell_index, row_index, cell, possible_moves)
-    if possible_moves.include?
-      highlight_cell(cell_index, row_index, cell)
-    else
-      not_highlight_cell(cell_index, row_index, cell)
-    end
+  def find_next_coord(next_coord, direction)
+    next_row = next_coord[0].to_i + direction[0]
+    next_letter = find_next_letter(next_coord, direction)
+    next_coord = [next_row, next_letter]
+    next_coord unless invalid?(next_coord)
   end
 
-  def highlight_cell(cell_index, row_index, cell)
-    if even_row?(row_index)
-      highlight_cell_in_even_row(cell_index, cell)
-    else
-      highlight_cell_in_odd_row(cell_index, cell)
-    end
+  def invalid?(coord)
+    off?(coord) || occupied?(coord)
   end
 
-  def even_row?(row_index)
-    row_index.even?
+  def off?(coord)
+    coord.nil? || !coord[0]&.between?(0, 7) || !coord[1]&.between?(:a, :h)
   end
 
-  def highlight_cell_in_even_row(cell_index, cell)
-    if even_cell?(cell_index)
-      print cell.to_s.on_blue
-    else
-      print cell.to_s.on_red
-    end
+  def occupied?(coord)
+    !cells[coord[0]][coord[1]].is_a?(String)
   end
 
-  def highlight_cell_in_odd_row(cell_index, cell)
-    if even_cell?(cell_index)
-      print cell.to_s.on_red
-    else
-      print cell.to_s.on_blue
-    end
+  def find_next_letter(coord, direction)
+    num_to_letter_dict = %i[a b c d e f g h]
+    current_letter_index = num_to_letter_dict.index(coord[1])
+    next_letter_index = current_letter_index + direction[1]
+    num_to_letter(next_letter_index)
   end
 
-  def even_cell?(cell_index)
-    cell_index.even?
+  def find_coord(cell_index, row_index)
+    [row_index, num_to_letter(cell_index)]
   end
 
-  def not_highlight_cell(row_index, cell_index, cell)
-    if even_row?(row_index)
-      print_cell_in_even_row(cell_index, cell)
-    else
-      print_cell_in_odd_row(cell_index, cell)
-    end
-  end
+  def num_to_letter(num)
+    return if num.negative?
 
-  def print_cell_in_even_row(cell_index, cell)
-    if even_cell?(cell_index)
-      print cell.to_s.on_yellow
-    else
-      print cell.to_s.on_gray
-    end
-  end
-
-  def print_cell_in_odd_row(cell_index, cell)
-    if even_cell?(cell_index)
-      print cell.to_s.on_gray
-    else
-      print cell.to_s.on_yellow
-    end
+    num_to_letter_dict = %i[a b c d e f g h]
+    num_to_letter_dict[num]
   end
 end
 
-Board.new.show
+Board.new.show(Board.new.possible_moves([7, :g]))

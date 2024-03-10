@@ -16,6 +16,14 @@ class Pawn
     @first_move = true
   end
 
+  def self.move_directions
+    MOVE_DIRECTIONS
+  end
+
+  def self.moves_linearly?
+    false
+  end
+
   def to_s
     if color == 'white'
       ' ♙ '
