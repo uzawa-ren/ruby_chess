@@ -18,11 +18,11 @@ class Game
   end
 
   def turn
-    figure_to_move = user_input # => a2
-    next_moves = board.possible_moves(figure_to_move)
+    coord_with_figure_to_move = user_input # => юзер вводить "a2", однак метод повертає [2, 'a']
+    next_moves = board.possible_moves(coord_with_figure_to_move)
     board.show(next_moves)
-    coord_to_move = user_input # => a4
-    board.move(coord_to_move)
+    coord_to_move_to = user_input # => a4
+    board.move(coord_to_move_to)
     board.show
   end
 
