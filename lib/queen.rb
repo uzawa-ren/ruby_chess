@@ -13,7 +13,7 @@ class Queen
     @color = color
   end
 
-  def self.move_directions
+  def self.move_directions(_color)
     MOVE_DIRECTIONS
   end
 

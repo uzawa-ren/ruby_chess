@@ -21,12 +21,13 @@ class Board
         a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
         e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
       },
-      { a: '   ', b: '   ', c: '   ', d: '   ', e: Pawn.new('white'), f: '   ', g: '   ', h: '   ' },
-      { a: '   ', b: Pawn.new('white'), c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-      { a: '   ', b: '   ', c: '   ', d: Pawn.new('black'), e: '   ', f: '   ', g: '   ', h: '   ' },
+      { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
+        e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
       { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
       { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-      { a: '   ', b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
+      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+      { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
         e: Pawn.new('white'), f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
       {
         a: Rook.new('white'), b: Knight.new('white'), c: Bishop.new('white'), d: Queen.new('white'),
@@ -49,15 +50,16 @@ class Board
     piece = piece_obj_from_coord(coord)
     return if empty_cell?(piece)
 
-    directions = piece.class.move_directions
+    directions = piece.class.move_directions(piece.color)
     find_all_moves(coord, directions, piece)
   end
 
   private
 
-  def invalid?(coord, prev_coord, team_color)
+  def invalid?(coord, prev_coord, team_color, direction)
     off?(coord) || occupied_by_same_team?(coord, team_color) ||
-      crashed_into_opponent_piece?(coord, prev_coord, team_color)
+      crashed_into_opponent_piece?(coord, prev_coord, team_color) ||
+      invalid_pawn_move?(coord, team_color, direction)
   end
 
   def off?(coord)
@@ -70,5 +72,3 @@ class Board
     cell.is_a?(String)
   end
 end
-
-Board.new.show(Board.new.possible_moves([0, :d]))

@@ -3,21 +3,27 @@
 require 'colorize'
 
 class Pawn
-  MOVE_DIRECTIONS = {
-    move: [+1, 0],
-    attack: [[+1, -1], [+1, +1]],
-    en_passant: [+2, 0]
-  }.freeze
+  MOVE_DIRECTIONS = [
+    [-1, -1], [-1, 0], [-1, +1], [-2, 0]
+  ].freeze
 
-  attr_reader :color, :first_move
+  attr_reader :color, :moved
 
   def initialize(color)
     @color = color
     @first_move = true
   end
 
-  def self.move_directions
-    MOVE_DIRECTIONS
+  def self.move_directions(color)
+    if color == 'black'
+      MOVE_DIRECTIONS.map { |direction| flip_path_direction(direction) }
+    else
+      MOVE_DIRECTIONS
+    end
+  end
+
+  def flip_path_direction(direction)
+    [direction[0].abs, direction[1]]
   end
 
   def self.moves_linearly?
@@ -33,6 +39,6 @@ class Pawn
   end
 
   def update_status
-    @first_move = false
+    @moved = true
   end
 end
