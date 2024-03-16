@@ -11,7 +11,7 @@ class Pawn
 
   def initialize(color)
     @color = color
-    @first_move = true
+    @moved = false
   end
 
   def self.move_directions(color)

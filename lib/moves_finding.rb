@@ -52,29 +52,26 @@ module MovesFinding
     num_to_letter_dict[num]
   end
 
-  def occupied_by_same_team?(coord, piece_color)
-    cell = piece_obj_from_coord(coord)
+  def occupied_by_same_team?(cell, piece_color)
     return false if empty_cell?(cell)
 
     cell.color == piece_color
   end
 
-  def crashed_into_opponent_piece?(coord, prev_coord, team_color)
-    curr_cell = piece_obj_from_coord(coord)
-    prev_cell = piece_obj_from_coord(prev_coord)
+  def crashed_into_opponent_piece?(curr_cell, prev_cell, team_color)
     return false if empty_cell?(prev_cell)
 
     prev_cell.color != team_color && empty_cell?(curr_cell)
   end
 
-  def invalid_pawn_move?(coord, team_color, direction)
+  def invalid_pawn_move?(coord, prev_coord, team_color, direction)
     case direction
     when [+1, -1], [+1, +1], [-1, -1], [-1, +1] # diagonal attack
       no_piece_to_take?(coord, team_color)
     when [+1, 0], [-1, 0] # forward 1 square
       occupied_coord?(coord)
     when [+2, 0], [-2, 0] # forward 2 squares
-      moved?(coord) || inbetween_coord_occupied?(coord, team_color)
+      moved?(prev_coord) || inbetween_coord_occupied?(coord, team_color)
     else
       false
     end
@@ -82,7 +79,7 @@ module MovesFinding
 
   def no_piece_to_take?(coord, team_color)
     piece = piece_obj_from_coord(coord)
-    empty_cell?(piece) || occupied_by_same_team?(coord, team_color)
+    empty_cell?(piece) || occupied_by_same_team?(piece, team_color)
   end
 
   def occupied_coord?(coord)

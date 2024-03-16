@@ -37,9 +37,11 @@ class Board
   end
 
   def show(possible_moves = [])
+    puts '    a  b  c  d  e  f  g  h'.gray
     cell_index = 0
     row_index = 0
     cells.each do |row|
+      print " #{(row_index - 8).abs} ".gray
       print_row(cell_index, row_index, row, possible_moves)
       puts ''
       row_index += 1
@@ -57,9 +59,14 @@ class Board
   private
 
   def invalid?(coord, prev_coord, team_color, direction)
-    off?(coord) || occupied_by_same_team?(coord, team_color) ||
-      crashed_into_opponent_piece?(coord, prev_coord, team_color) ||
-      invalid_pawn_move?(coord, team_color, direction)
+    return true if off?(coord)
+
+    cell = piece_obj_from_coord(coord)
+    prev_cell = piece_obj_from_coord(prev_coord)
+
+    occupied_by_same_team?(cell, team_color) ||
+      crashed_into_opponent_piece?(cell, prev_cell, team_color) ||
+      (invalid_pawn_move?(coord, prev_coord, team_color, direction) if prev_cell.instance_of?(Pawn))
   end
 
   def off?(coord)
