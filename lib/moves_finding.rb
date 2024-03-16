@@ -1,4 +1,9 @@
 module MovesFinding
+  def occupied_coord?(coord)
+    piece = piece_obj_from_coord(coord)
+    !empty_cell?(piece)
+  end
+
   private
 
   def piece_obj_from_coord(coord)
@@ -80,11 +85,6 @@ module MovesFinding
   def no_piece_to_take?(coord, team_color)
     piece = piece_obj_from_coord(coord)
     empty_cell?(piece) || occupied_by_same_team?(piece, team_color)
-  end
-
-  def occupied_coord?(coord)
-    piece = piece_obj_from_coord(coord)
-    !empty_cell?(piece)
   end
 
   def moved?(coord)
