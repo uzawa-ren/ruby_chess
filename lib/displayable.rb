@@ -10,7 +10,7 @@ module Displayable
 
   def print_cell(cell_index, row_index, cell, possible_moves)
     cell_coord = find_coord(cell_index, row_index)
-    if possible_moves.include?(cell_coord)
+    if possible_moves&.include?(cell_coord)
       highlight_cell(cell_index, row_index, cell)
     else
       not_highlight_cell(cell_index, row_index, cell)

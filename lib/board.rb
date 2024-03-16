@@ -13,7 +13,7 @@ require_relative 'moves_finding'
 class Board
   include Displayable
   include MovesFinding
-  attr_reader :cells
+  attr_reader :cells, :curr_next_moves, :coord_to_move_to
 
   def initialize # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     @cells = [
@@ -56,6 +56,10 @@ class Board
     find_all_moves(coord, directions, piece)
   end
 
+  def empty_cell?(cell)
+    cell.is_a?(String)
+  end
+
   private
 
   def invalid?(coord, prev_coord, team_color, direction)
@@ -75,7 +79,11 @@ class Board
     !coord[0]&.between?(0, 7) || !coord[1]&.between?(:a, :h)
   end
 
-  def empty_cell?(cell)
-    cell.is_a?(String)
+  def update_curr_next_moves(moves)
+    @curr_next_moves = moves
+  end
+
+  def update_coord_to_move_to(new_coord)
+    @coord_to_move_to = new_coord
   end
 end

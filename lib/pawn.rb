@@ -22,7 +22,7 @@ class Pawn
     end
   end
 
-  def flip_path_direction(direction)
+  def self.flip_path_direction(direction)
     [direction[0].abs, direction[1]]
   end
 
