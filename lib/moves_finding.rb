@@ -1,11 +1,10 @@
 module MovesFinding
-  def occupied_coord?(coord)
+  def possible_moves(coord)
     piece = piece_obj_from_coord(coord)
-    !empty_cell?(piece)
-  end
+    return if empty_cell?(piece)
 
-  def piece_obj_from_coord(coord)
-    cells[coord[0]][coord[1]]
+    directions = piece.class.move_directions(piece.color)
+    find_all_moves(coord, directions, piece)
   end
 
   private

@@ -42,11 +42,12 @@ class Game
     end
   end
 
-  def turn
-    puts "#{current_player.capitalize} player, it's your turn."
+  def turn # rubocop:disable Metrics/AbcSize
+    player = current_player == 'white' ? current_player.capitalize.on_gray :
+                                         current_player.capitalize.black.on_white
+    puts "#{player}, it's your turn."
     select_piece
-    board.move_piece(board.coord_to_move_to)
-    puts 'Moved.'
+    board.move_piece(board.coord_to_move, board.destination_coord)
     board.show
   end
 

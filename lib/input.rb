@@ -3,7 +3,7 @@ module Input
     input = gets.chomp.downcase
     return if user_wants_to_quit?(input)
 
-    transformed_input = transform_input(input)
+    transformed_input = transform_string_coord_to_array(input)
     verified_input = verify_input(transformed_input, next_moves)
     return verified_input if verified_input
 
@@ -29,19 +29,19 @@ module Input
   end
 
   def select_piece_to_move
-    puts 'Select the piece you want to move. Write it like this: d4'
-    coord_with_figure_to_move = user_input
-    next_moves = board.possible_moves(coord_with_figure_to_move)
-    board.update_curr_next_moves(next_moves)
+    print 'Select the piece you want to move. (Write it like this: d4): '
+    coord_with_piece_to_move = user_input
+    board.update_coord_to_move(coord_with_piece_to_move)
   end
 
   def select_cell_to_move_to
-    board.show(board.curr_next_moves)
-    puts "Now select the cell you want to move to or type 'q' to reselect piece"
-    new_coord = user_input(board.curr_next_moves)
+    next_moves = board.possible_moves(board.coord_to_move)
+    board.show(next_moves)
+    print "Now select the cell you want to move to or type 'q' to reselect piece: "
+    new_coord = user_input(next_moves)
     return if user_typed_q(new_coord)
 
-    board.update_coord_to_move_to(new_coord)
+    board.update_destination_coord(new_coord)
     true
   end
 
@@ -53,7 +53,7 @@ module Input
     input.match?(/^q$/)
   end
 
-  def transform_input(input)
+  def transform_string_coord_to_array(input)
     number = input[1].to_i
     transformed_number = (number - 8).abs
     letter = input[0].to_sym

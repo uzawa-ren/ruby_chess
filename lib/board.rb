@@ -9,11 +9,13 @@ require_relative 'pieces/queen'
 require_relative 'pieces/rook'
 require_relative 'display'
 require_relative 'moves_finding'
+require_relative 'moving'
 
 class Board
   include Display
   include MovesFinding
-  attr_reader :cells, :curr_next_moves, :coord_to_move_to
+  include Moving
+  attr_reader :cells, :coord_to_move, :destination_coord
 
   def initialize # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     @cells = [
@@ -48,16 +50,25 @@ class Board
     end
   end
 
-  def possible_moves(coord)
-    piece = piece_obj_from_coord(coord)
-    return if empty_cell?(piece)
-
-    directions = piece.class.move_directions(piece.color)
-    find_all_moves(coord, directions, piece)
-  end
-
   def empty_cell?(cell)
     cell.is_a?(String)
+  end
+
+  def piece_obj_from_coord(coord)
+    cells[coord[0]][coord[1]]
+  end
+
+  def occupied_coord?(coord)
+    piece = piece_obj_from_coord(coord)
+    !empty_cell?(piece)
+  end
+
+  def update_coord_to_move(coord)
+    @coord_to_move = coord
+  end
+
+  def update_destination_coord(coord)
+    @destination_coord = coord
   end
 
   private
@@ -77,13 +88,5 @@ class Board
     return false if coord.nil?
 
     !coord[0]&.between?(0, 7) || !coord[1]&.between?(:a, :h)
-  end
-
-  def update_curr_next_moves(moves)
-    @curr_next_moves = moves
-  end
-
-  def update_coord_to_move_to(new_coord)
-    @coord_to_move_to = new_coord
   end
 end
