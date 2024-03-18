@@ -7,11 +7,11 @@ require_relative 'knight'
 require_relative 'pawn'
 require_relative 'queen'
 require_relative 'rook'
-require_relative 'displayable'
+require_relative 'display'
 require_relative 'moves_finding'
 
 class Board
-  include Displayable
+  include Display
   include MovesFinding
   attr_reader :cells, :curr_next_moves, :coord_to_move_to
 

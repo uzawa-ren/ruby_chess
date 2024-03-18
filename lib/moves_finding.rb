@@ -4,11 +4,11 @@ module MovesFinding
     !empty_cell?(piece)
   end
 
-  private
-
   def piece_obj_from_coord(coord)
     cells[coord[0]][coord[1]]
   end
+
+  private
 
   def find_all_moves(coord, directions, piece)
     result_array = []
