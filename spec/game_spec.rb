@@ -7,31 +7,78 @@ require_relative '../lib/game'
 describe Game do
   subject(:game) { described_class.new }
 
-  describe '#user_input' do
-    context 'when user inputs correct value' do
-      before do
-        valid_input = 'c2'
-        allow(game).to receive(:gets).and_return(valid_input)
+  describe '#coord_input' do
+    context 'when user inputs value for coordinate to move' do
+      context 'when user inputs correct value' do
+        before do
+          valid_input = 'c2'
+          allow(game).to receive(:gets).and_return(valid_input)
+          allow(game).to receive(:print)
+        end
+
+        it 'completes loop and does not display error message' do
+          error_message = "\e[0;31;49mInput error!\e[0m"
+          prompt = "Select the piece you want to move. You can also type 'save' or 'quit: "
+          empty_next_moves = ['default value']
+
+          expect(game).not_to receive(:puts).with(error_message)
+          game.coord_input(prompt, empty_next_moves)
+        end
       end
 
-      it 'completes loop and does not display error message' do
-        error_message = "\e[0;31;49mInput error!\e[0m"
-        expect(game).not_to receive(:puts).with(error_message)
-        game.user_input
+      context 'when user inputs an incorrect value once, then a valid input' do
+        before do
+          off_board_input = 'w9'
+          valid_input = 'g1'
+          allow(game).to receive(:gets).and_return(off_board_input, valid_input)
+          allow(game).to receive(:print)
+        end
+
+        it 'completes loop and displays error message once' do
+          error_message = "\e[0;31;49mInput error!\e[0m"
+          prompt = "Select the piece you want to move. You can also type 'save' or 'quit: "
+          empty_next_moves = ['default value']
+
+          expect(game).to receive(:puts).with(error_message).once
+          game.coord_input(prompt, empty_next_moves)
+        end
       end
     end
 
-    context 'when user inputs an incorrect value once, then a valid input' do
-      before do
-        off_board_input = 'w9'
-        valid_input = 'g1'
-        allow(game).to receive(:gets).and_return(off_board_input, valid_input)
+    context 'when user inputs value for destination coordinate' do
+      context 'when user inputs correct value' do
+        before do
+          valid_input = 'c2'
+          allow(game).to receive(:gets).and_return(valid_input)
+          allow(game).to receive(:print)
+        end
+
+        it 'completes loop and does not display error message' do
+          error_message = "\e[0;31;49mInput error!\e[0m"
+          prompt = "Now select the cell you want to move to or type 'r' to reselect piece: "
+          next_moves = [[5, :d], [6, :c], [1, :a]]
+
+          expect(game).not_to receive(:puts).with(error_message)
+          game.coord_input(prompt, next_moves)
+        end
       end
 
-      it 'completes loop and displays error message once' do
-        error_message = "\e[0;31;49mInput error!\e[0m"
-        expect(game).to receive(:puts).with(error_message).once
-        game.user_input
+      context 'when user inputs an incorrect value once, then a valid input' do
+        before do
+          not_next_move_input = '4b'
+          valid_input = 'g1'
+          allow(game).to receive(:gets).and_return(not_next_move_input, valid_input)
+          allow(game).to receive(:print)
+        end
+
+        it 'completes loop and displays error message once' do
+          error_message = "\e[0;31;49mInput error!\e[0m"
+          prompt = "Now select the cell you want to move to or type 'r' to reselect piece: "
+          next_moves = [[5, :d], [6, :c], [7, :g]]
+
+          expect(game).to receive(:puts).with(error_message).once
+          game.coord_input(prompt, next_moves)
+        end
       end
     end
   end
