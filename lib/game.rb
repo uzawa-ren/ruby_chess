@@ -2,9 +2,11 @@
 
 require_relative 'board'
 require_relative 'input'
+require_relative 'saving'
 
 class Game
   include Input
+  include Saving
   attr_reader :current_player, :board, :winner, :quit
 
   def initialize
@@ -22,8 +24,11 @@ class Game
   private
 
   def introduction
-    puts 'Welcome to command line Chess! Please write all coordinates like this: letter + number. Eg: d4'
-    text = 'Would you like to play a new game [n] or load existing one [l]? '
+    puts 'Welcome to command line Chess!'
+    puts 'Please write all coordinates like this: letter + number. Eg: d4'
+    puts 'Also keep in mind that if you load a game, the save will be deleted,'
+    puts "so save the game again if you haven't finished it.\n\n"
+    text = 'Would you like to play a new game [n] or load an existing one [l]? '
     user_choice = user_input(text, /[nl]/)
     load_game if user_choice == 'l'
   end
@@ -49,7 +54,7 @@ class Game
   # rubocop:disable Style/MultilineTernaryOperator
 
   def hightlight_player_team
-    current_player == 'white' ? current_player.capitalize.on_gray : 
+    current_player == 'white' ? current_player.capitalize.on_gray :
                                 current_player.capitalize.black.on_white
   end
   # rubocop:enable Style/MultilineTernaryOperator

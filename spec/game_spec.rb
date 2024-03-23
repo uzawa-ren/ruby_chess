@@ -3,6 +3,7 @@
 # rubocop:disable Metrics/BlockLength
 
 require_relative '../lib/game'
+require 'yaml'
 
 describe Game do
   subject(:game) { described_class.new }
@@ -127,6 +128,64 @@ describe Game do
         verified_input = game.verify_input(invalid_input, next_moves)
         expect(verified_input).to be_nil
       end
+    end
+  end
+
+  describe '#save_game' do
+    let(:cells) { game.board.instance_variable_get(:@cells) }
+    let(:current_player) { game.instance_variable_get(:@current_player) }
+
+    before do
+      game.board.instance_variable_set(:@cells, [
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: King.new('white'), c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: King.new('black'), f: '   ', g: '   ', h: '   ' },
+        { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
+      ])
+      allow(game).to receive(:puts)
+    end
+
+    it 'creates a file' do
+      game.save_game
+      save_file = Dir['saves/*_game.yaml'].sort.last
+
+      expect(save_file).not_to be_empty # so it exists
+      File.delete(save_file)
+    end
+
+    it 'writes the same @cells and @current_player inside saved file' do
+      game.save_game
+
+      save_file = Dir['saves/*_game.yaml'].sort.last
+      saved_data = YAML.safe_load(
+        File.read(save_file),
+        permitted_classes: [Bishop, King, Knight, Pawn, Queen, Rook, Symbol]
+      )
+      data = {cells:, current_player:} # rubocop:disable Lint/Syntax
+      expect(saved_data).to eq(data)
+      File.delete(save_file)
+    end
+  end
+
+  describe '#load_game' do
+    let(:cells) { game.board.instance_variable_get(:@cells) }
+    let(:current_player) { game.instance_variable_get(:@current_player) }
+
+    before do
+      allow(game).to receive(:puts)
+      allow(game).to receive(:print)
+      game.save_game
+      game.board.instance_variable_set(:@current_player, 'black')
+      allow(game).to receive(:gets).and_return '1'
+    end
+
+    it 'loads game with saved values' do
+      game.load_game
+      expect(current_player).to eql('white')
     end
   end
 end

@@ -15,7 +15,8 @@ class Board
   include Display
   include MovesFinding
   include Moving
-  attr_reader :cells, :coord_to_move, :destination_coord
+  attr_reader :coord_to_move, :destination_coord
+  attr_accessor :cells
 
   def initialize # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     @cells = [

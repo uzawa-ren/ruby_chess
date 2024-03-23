@@ -28,4 +28,8 @@ class Knight
       ' ♞ '.black
     end
   end
+
+  def ==(other)
+    self.class == other.class && color == other.color
+  end
 end

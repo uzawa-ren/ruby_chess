@@ -41,4 +41,8 @@ class Pawn
   def update_status
     @moved = true
   end
+
+  def ==(other)
+    self.class == other.class && color == other.color && moved == other.moved
+  end
 end
