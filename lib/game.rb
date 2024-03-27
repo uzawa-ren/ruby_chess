@@ -7,11 +7,15 @@ require_relative 'saving'
 class Game
   include Input
   include Saving
-  attr_reader :current_player, :board, :winner, :quit
+  attr_reader :current_player, :board
+  attr_accessor :checks, :winners
 
   def initialize
     @current_player = 'white'
-    @board = Board.new
+    @board = Board.new(self)
+    @winners = []
+    @checks = {}
+    @notified_checks = {}
   end
 
   def play
@@ -21,7 +25,13 @@ class Game
     conclusion
   end
 
+  def other_player(team_color)
+    team_color == 'white' ? 'black' : 'white'
+  end
+
   private
+
+  attr_reader :quit
 
   def introduction
     puts 'Welcome to command line Chess!'
@@ -65,7 +75,7 @@ class Game
 
   def conclusion
     if board.mate?
-      puts "#{winner} team wins!"
+      puts "#{winners.uniq.join(' team and ').capitalize} team wins!"
     elsif board.stalemate?
       puts 'A draw!'
     end

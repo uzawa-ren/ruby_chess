@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../lib/board'
+require_relative '../lib/game'
 
 # rubocop:disable Metrics/BlockLength, Layout/LineLength
 
 describe Board do
-  subject(:board) { described_class.new }
+  let(:game) { Game.new }
+  subject(:board) { described_class.new(game) }
 
   describe '#possible_moves' do
     context 'when passed coordinate with Bishop piece' do
@@ -66,7 +68,7 @@ describe Board do
 
       it 'returns array of possible moves for Knight' do
         moves = board.possible_moves([3, :d])
-        available_moves = [[5, :c], [5, :e], nil, [2, :f], [1, :e], [1, :c], nil, [4, :b]]
+        available_moves = [[5, :c], [5, :e], [2, :f], [1, :e], [1, :c], [4, :b]]
         expect(moves).to include(*available_moves)
       end
     end
@@ -177,6 +179,149 @@ describe Board do
         moves = board.possible_moves([3, :d])
         available_moves = [[4, :d], [5, :d], [6, :d], [7, :d], [3, :e], [3, :f], [3, :g], [3, :h], [2, :d], [1, :d], [3, :c]]
         expect(moves).to eql(available_moves)
+      end
+    end
+  end
+
+  describe '#check?' do
+    context 'when there is a check' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: Knight.new('white'), b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: King.new('white'), f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: Knight.new('black'), e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
+        ])
+      end
+
+      it 'returns true' do
+        allow(board).to receive(:puts)
+
+        check = board.check?
+        expect(check).to be(true)
+      end
+
+      it 'displays the correct message' do
+        correct_message = 'Black knight gives check to white king!'.magenta
+
+        expect(board).to receive(:puts).with(correct_message)
+        board.check?
+      end
+    end
+
+    context 'when there is no check' do
+      it 'returns false' do
+        allow(board).to receive(:puts)
+
+        check = board.check?
+        expect(check).to be(false)
+      end
+
+      it 'does not display any messages' do
+        expect(board).not_to receive(:puts)
+        board.check?
+      end
+    end
+  end
+
+  describe '#mate?' do
+    context 'when there is a mate' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: King.new('black'), b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        ])
+        game.instance_variable_set(:@board, board)
+        game.send(:switch_current_player)
+        allow(game).to receive(:puts)
+        allow(game).to receive(:print)
+        allow(board).to receive(:puts)
+        allow(board).to receive(:print)
+        allow(game).to receive(:gets).and_return('a8', 'a7')
+      end
+
+      it 'returns true' do
+        game.send(:turns)
+
+        mate = board.mate?
+        expect(mate).to be(true)
+      end
+    end
+
+    context 'when king moves away to a square where he is not in check' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: Knight.new('white'), b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: King.new('white'), f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: Knight.new('black'), e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' }
+        ])
+      end
+
+      xit 'returns false' do
+        allow(board).to receive(:puts)
+
+        mate = board.mate?
+        expect(mate).to be(false)
+      end
+    end
+
+    context 'when check is removed by taking checker piece' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: Knight.new('white'), b: '   ', c: '   ', d: Pawn.new('white'), e: Pawn.new('white'), f: Pawn.new('white'), g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: Pawn.new('white'), e: King.new('white'), f: Pawn.new('white'), g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: Rook.new('white'), e: Pawn.new('white'), f: Pawn.new('white'), g: '   ', h: '   ' },
+          { a: '   ', b: Rook.new('white'), c: '   ', d: Knight.new('black'), e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
+        ])
+        board.show
+      end
+
+      xit 'returns false' do
+        allow(board).to receive(:puts)
+
+        mate = board.mate?
+        expect(mate).to be(false)
+      end
+    end
+
+    context 'when check is removed by placing another piece in front of moving linearly checker (e.g. Rook)' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: Knight.new('white'), b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('white'), g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: Pawn.new('white'), f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: Rook.new('black'), e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
+        ])
+      end
+
+      xit 'returns false' do
+        allow(board).to receive(:puts)
+
+        mate = board.mate?
+        expect(mate).to be(false)
       end
     end
   end
