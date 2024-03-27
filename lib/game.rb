@@ -7,11 +7,15 @@ require_relative 'saving'
 class Game
   include Input
   include Saving
-  attr_reader :current_player, :board, :winner, :quit
+  attr_reader :current_player, :board
+  attr_accessor :checks, :winners
 
   def initialize
     @current_player = 'white'
-    @board = Board.new
+    @board = Board.new(self)
+    @winners = []
+    @checks = {}
+    @notified_checks = {}
   end
 
   def play
@@ -21,13 +25,19 @@ class Game
     conclusion
   end
 
+  def other_player(team_color)
+    team_color == 'white' ? 'black' : 'white'
+  end
+
   private
+
+  attr_reader :quit
 
   def introduction
     puts 'Welcome to command line Chess!'
     puts 'Please write all coordinates like this: letter + number. Eg: d4'
     puts 'Also keep in mind that if you load a game, the save will be deleted,'
-    puts "so save the game again if you haven't finished it.\n\n"
+    puts "so please save the game again if you haven't finished it.\n\n"
     text = 'Would you like to play a new game [n] or load an existing one [l]? '
     user_choice = user_input(text, /[nl]/)
     load_game if user_choice == 'l'
@@ -65,7 +75,7 @@ class Game
 
   def conclusion
     if board.mate?
-      puts "#{winner} team wins!"
+      puts "#{winners.uniq.join(' team and ').capitalize} team wins!"
     elsif board.stalemate?
       puts 'A draw!'
     end

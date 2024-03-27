@@ -58,9 +58,10 @@ module MovesFinding
     cell = piece_obj_from_coord(coord)
     prev_cell = piece_obj_from_coord(prev_coord)
 
-    next_move_occupied_by_same_team?(cell, team_color) ||
-      crashed_into_opponent_piece?(cell, prev_cell, team_color) ||
-      (invalid_pawn_move?(coord, prev_coord, team_color, direction) if prev_cell.instance_of?(Pawn))
+    return true if next_move_occupied_by_same_team?(cell, team_color) ||
+                   crashed_into_opponent_piece?(cell, prev_cell, team_color)
+
+    invalid_pawn_move?(coord, prev_coord, team_color, direction) if prev_cell.instance_of?(Pawn)
   end
 
   def next_move_occupied_by_same_team?(cell, piece_color)
