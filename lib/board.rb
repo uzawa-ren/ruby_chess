@@ -10,15 +10,17 @@ require_relative 'pieces/rook'
 require_relative 'display'
 require_relative 'moves_finding'
 require_relative 'moving'
+require_relative 'winning'
 
 class Board
   include Display
   include MovesFinding
   include Moving
-  attr_reader :coord_to_move, :destination_coord
+  include Winning
+  attr_reader :coord_to_move, :destination_coord, :game
   attr_accessor :cells
 
-  def initialize # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+  def initialize(game) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
     @cells = [
       {
         a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
@@ -37,6 +39,7 @@ class Board
         e: King.new('white'), f: Bishop.new('white'), g: Knight.new('white'), h: Rook.new('white')
       }
     ]
+    @game = game
   end
 
   def show(possible_moves = [])
@@ -59,11 +62,6 @@ class Board
     cells[coord[0]][coord[1]]
   end
 
-  def occupied_coord?(coord)
-    piece = piece_obj_from_coord(coord)
-    !empty_cell?(piece)
-  end
-
   def update_coord_to_move(coord)
     @coord_to_move = coord
   end
@@ -72,22 +70,47 @@ class Board
     @destination_coord = coord
   end
 
+  def valid_piece?(coord)
+    not_off?(coord) && current_player_color?(coord) && occupied_coord?(coord)
+  end
+
+  def next_move?(input, next_moves)
+    next_moves.include?(input)
+  end
+
   private
 
-  def invalid?(coord, prev_coord, team_color, direction)
-    return true if off?(coord)
+  def not_off?(input)
+    !off?(input)
+  end
 
-    cell = piece_obj_from_coord(coord)
-    prev_cell = piece_obj_from_coord(prev_coord)
+  def current_player_color?(input)
+    piece = piece_obj_from_coord(input)
+    return true if empty_cell?(piece)
 
-    occupied_by_same_team?(cell, team_color) ||
-      crashed_into_opponent_piece?(cell, prev_cell, team_color) ||
-      (invalid_pawn_move?(coord, prev_coord, team_color, direction) if prev_cell.instance_of?(Pawn))
+    piece.color == game.current_player
+  end
+
+  def occupied_coord?(coord)
+    piece = piece_obj_from_coord(coord)
+    !empty_cell?(piece)
   end
 
   def off?(coord)
     return false if coord.nil?
 
     !coord[0]&.between?(0, 7) || !coord[1]&.between?(:a, :h)
+  end
+
+  def king_position(team_color)
+    cells.each_with_index do |row, index|
+      cell_with_king = row.find { |_letter, cell| cell.is_a?(King) && cell.color == team_color }
+      next unless cell_with_king
+
+      finded_coord_letter = cell_with_king[0]
+      finded_coord_number = index
+      finded_coord = [finded_coord_number, finded_coord_letter]
+      return finded_coord
+    end
   end
 end

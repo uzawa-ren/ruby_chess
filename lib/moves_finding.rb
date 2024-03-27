@@ -4,7 +4,7 @@ module MovesFinding
     return if empty_cell?(piece)
 
     directions = piece.class.move_directions(piece.color)
-    find_all_moves(coord, directions, piece)
+    find_all_moves(coord, directions, piece).compact
   end
 
   private
@@ -35,7 +35,7 @@ module MovesFinding
     next_coord = [next_row, next_letter]
     return next_coord if without_verification
 
-    next_coord unless invalid?(next_coord, coord, piece_color, direction)
+    next_coord unless invalid_next_move?(next_coord, coord, piece_color, direction)
   end
 
   def find_next_letter(coord, direction)
@@ -45,10 +45,6 @@ module MovesFinding
     num_to_letter(next_letter_index)
   end
 
-  def find_coord(cell_index, row_index)
-    [row_index, num_to_letter(cell_index)]
-  end
-
   def num_to_letter(num)
     return if num.negative?
 
@@ -56,7 +52,18 @@ module MovesFinding
     num_to_letter_dict[num]
   end
 
-  def occupied_by_same_team?(cell, piece_color)
+  def invalid_next_move?(coord, prev_coord, team_color, direction)
+    return true if off?(coord)
+
+    cell = piece_obj_from_coord(coord)
+    prev_cell = piece_obj_from_coord(prev_coord)
+
+    next_move_occupied_by_same_team?(cell, team_color) ||
+      crashed_into_opponent_piece?(cell, prev_cell, team_color) ||
+      (invalid_pawn_move?(coord, prev_coord, team_color, direction) if prev_cell.instance_of?(Pawn))
+  end
+
+  def next_move_occupied_by_same_team?(cell, piece_color)
     return false if empty_cell?(cell)
 
     cell.color == piece_color
@@ -83,7 +90,7 @@ module MovesFinding
 
   def no_piece_to_take?(coord, team_color)
     piece = piece_obj_from_coord(coord)
-    empty_cell?(piece) || occupied_by_same_team?(piece, team_color)
+    empty_cell?(piece) || next_move_occupied_by_same_team?(piece, team_color)
   end
 
   def moved?(coord)
@@ -97,5 +104,9 @@ module MovesFinding
     direction = team_color == 'white' ? [1, 0] : [-1, 0]
     inbetween_coord = find_next_coord(coord, direction, team_color, true)
     occupied_coord?(inbetween_coord)
+  end
+
+  def find_coord_from_indexes(cell_index, row_index)
+    [row_index, num_to_letter(cell_index)]
   end
 end

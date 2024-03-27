@@ -15,9 +15,9 @@ module Input
 
   def verify_input(input, next_moves)
     if selecting_piece_to_move?(next_moves)
-      input if valid_piece?(input)
+      input if board.valid_piece?(input)
     else
-      input if next_move?(input, next_moves)
+      input if board.next_move?(input, next_moves)
     end
   end
 
@@ -48,29 +48,6 @@ module Input
 
   def selecting_piece_to_move?(next_moves)
     next_moves.include?('default value')
-  end
-
-  def valid_piece?(coord)
-    not_off?(coord) && same_color?(coord) && occupied?(coord)
-  end
-
-  def not_off?(input)
-    input[0].between?(0, 7) && input[1].between?(:a, :h)
-  end
-
-  def same_color?(input)
-    piece = board.piece_obj_from_coord(input)
-    return true if board.empty_cell?(piece)
-
-    piece.color == current_player
-  end
-
-  def occupied?(input)
-    board.occupied_coord?(input)
-  end
-
-  def next_move?(input, next_moves)
-    next_moves.include?(input)
   end
 
   def select_piece
