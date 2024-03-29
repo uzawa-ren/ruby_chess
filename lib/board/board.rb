@@ -62,6 +62,10 @@ class Board
     cells[coord[0]][coord[1]]
   end
 
+  def empty_cell_by_coord?(coord)
+    empty_cell?(piece_obj_from_coord(coord))
+  end
+
   def update_coord_to_move(coord)
     @coord_to_move = coord
   end

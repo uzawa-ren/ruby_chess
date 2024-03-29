@@ -165,8 +165,8 @@ describe Game do
         File.read(save_file),
         permitted_classes: [Bishop, King, Knight, Pawn, Queen, Rook, Symbol]
       )
-      data = {cells:, current_player:} # rubocop:disable Lint/Syntax
-      expect(saved_data).to eq(data)
+      actual_data = {cells:, current_player:} # rubocop:disable Lint/Syntax
+      expect(saved_data).to eq(actual_data)
       File.delete(save_file)
     end
   end

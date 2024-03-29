@@ -7,7 +7,9 @@ module Saving
     filename = "saves/#{time}_game.yaml"
     File.open(filename, 'w') do |file|
       file.puts YAML.dump('cells': board.cells,
-                          'current_player': current_player)
+                          'current_player': current_player,
+                          'checks': checks,
+                          'winners': winners)
     end
     puts "Successfully saved. Type 'quit' or continue playing.".magenta
   end
@@ -51,5 +53,7 @@ module Saving
     )
     board.cells = save[:cells]
     @current_player = save[:current_player]
+    @checks = save[:checks]
+    @winners = save[:winners]
   end
 end
