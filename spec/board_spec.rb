@@ -241,18 +241,11 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
         ])
-        game.instance_variable_set(:@board, board)
         game.send(:switch_current_player)
-        allow(game).to receive(:puts)
-        allow(game).to receive(:print)
         allow(board).to receive(:puts)
-        allow(board).to receive(:print)
-        allow(game).to receive(:gets).and_return('a8', 'a7')
       end
 
       it 'returns true' do
-        game.send(:turns)
-
         mate = board.mate?
         expect(mate).to be(true)
       end
@@ -272,7 +265,7 @@ describe Board do
         ])
       end
 
-      xit 'returns false' do
+      it 'returns false' do
         allow(board).to receive(:puts)
 
         mate = board.mate?
@@ -292,10 +285,9 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
         ])
-        board.show
       end
 
-      xit 'returns false' do
+      it 'returns false' do
         allow(board).to receive(:puts)
 
         mate = board.mate?
@@ -317,11 +309,55 @@ describe Board do
         ])
       end
 
-      xit 'returns false' do
+      it 'returns false' do
         allow(board).to receive(:puts)
 
         mate = board.mate?
         expect(mate).to be(false)
+      end
+    end
+  end
+
+  describe '#stalemate?' do
+    context 'when there is stalemate' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: King.new('white') },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: Rook.new('black'), h: King.new('black') },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
+        ])
+      end
+
+      it 'returns true' do
+        stalemate = board.stalemate?
+        expect(stalemate).to be(true)
+      end
+    end
+
+    context 'when there is no stalemate' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: King.new('black'), b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+        ])
+        game.send(:switch_current_player)
+        allow(board).to receive(:puts) 
+      end
+
+      it 'returns true' do
+        stalemate = board.stalemate?
+        expect(stalemate).to be(false)
       end
     end
   end

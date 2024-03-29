@@ -4,12 +4,16 @@ module Winning
 
     checker_team_color = game.checks.find { |_key, value| value == true }[0].to_s
     receiver_team_color = game.other_player(checker_team_color)
-    king_cannot_escape_from_check?(checker_team_color, receiver_team_color) &&
+    king_cannot_escape_from_taking?(checker_team_color, receiver_team_color) &&
       cannot_take_checker?(checker_team_color, receiver_team_color)
   end
 
   def stalemate?
+    return false if check?
 
+    stalemate_receiver = game.current_player
+    stalemate_causer = game.other_player(stalemate_receiver)
+    king_cannot_escape_from_taking?(stalemate_causer, stalemate_receiver)
   end
 
   # private
@@ -91,7 +95,7 @@ module Winning
                                     .flatten(1).uniq
   end
 
-  def king_cannot_escape_from_check?(checker_team_color, receiver_team_color)
+  def king_cannot_escape_from_taking?(checker_team_color, receiver_team_color)
     king_moves = possible_moves(king_position(receiver_team_color))
     checker_player_moves = find_all_player_moves(checker_team_color)
     king_moves.all? { |move| checker_player_moves.include?(move) }

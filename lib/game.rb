@@ -44,9 +44,9 @@ class Game
   end
 
   def turns
-    until board.mate?
+    until board.mate? || board.stalemate?
       turn
-      break if quit || board.stalemate?
+      break if quit
 
       switch_current_player
     end
