@@ -4,13 +4,15 @@ require 'colorize'
 
 class King
   MOVE_DIRECTIONS = [
-    [+1, -1], [+1, 0], [+1, +1], [0, +1], [-1, +1], [-1, 0], [-1, -1], [0, -1]
+    [+1, -1], [+1, 0], [+1, +1], [0, +1], [-1, +1], [-1, 0], [-1, -1], [0, -1],
+    [0, +2], [0, -2]
   ].freeze
 
-  attr_reader :color
+  attr_reader :color, :moved
 
   def initialize(color)
     @color = color
+    @moved = false
   end
 
   def self.move_directions(_color)
@@ -27,6 +29,10 @@ class King
     elsif color == 'black'
       ' ♚ '.black
     end
+  end
+
+  def update_status
+    @moved = true
   end
 
   def ==(other)

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative '../lib/board'
-require_relative '../lib/game'
+require_relative '../lib/board/board'
+require_relative '../lib/game/game'
 
-# rubocop:disable Metrics/BlockLength, Layout/LineLength
+# rubocop:disable Metrics/BlockLength, Layout/LineLength, Layout/FirstArrayElementIndentation
 
 describe Board do
   let(:game) { Game.new }
@@ -50,6 +50,95 @@ describe Board do
         available_moves = [[4, :c], [4, :e], [3, :e], [2, :e], [2, :d], [2, :c]]
         expect(moves).to include(*available_moves)
       end
+
+      context 'when castling is possible' do
+        before do
+          board.instance_variable_set(:@cells, [
+            {
+              a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
+              e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
+            },
+            { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
+              e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: Bishop.new('white'), d: '   ', e: Pawn.new('white'), f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: Knight.new('white'), d: '   ', e: '   ', f: Knight.new('white'), g: '   ', h: '   ' },
+            { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
+              e: '   ', f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+            {
+              a: Rook.new('white'), b: '   ', c: Bishop.new('white'), d: Queen.new('white'),
+              e: King.new('white'), f: '   ', g: '   ', h: Rook.new('white')
+            }
+          ])
+        end
+
+        it 'returns array of possible moves for King including castling move' do
+          moves = board.possible_moves([7, :e])
+          castling_move = [7, :g]
+          expect(moves).to include(castling_move)
+        end
+      end
+
+      context 'when castling is not possible' do
+        context 'when path is not empty' do
+          before do
+            board.instance_variable_set(:@cells, [
+              {
+                a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
+                e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
+              },
+              { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
+                e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
+              { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+              { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+              { a: '   ', b: '   ', c: '   ', d: '   ', e: Pawn.new('white'), f: '   ', g: '   ', h: '   ' },
+              { a: '   ', b: '   ', c: Knight.new('white'), d: '   ', e: '   ', f: Knight.new('white'), g: '   ', h: '   ' },
+              { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
+                e: '   ', f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+              {
+                a: Rook.new('white'), b: '   ', c: Bishop.new('white'), d: Queen.new('white'),
+                e: King.new('white'), f: Bishop.new('white'), g: '   ', h: Rook.new('white')
+              }
+            ])
+          end
+
+          it 'returns array of possible moves for King without castling move' do
+            moves = board.possible_moves([7, :e])
+            castling_move = [7, :g]
+            expect(moves).not_to include(castling_move)
+          end
+        end
+
+        context 'when path is attacked by a pawn' do
+          before do
+            board.instance_variable_set(:@cells, [
+              {
+                a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
+                e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
+              },
+              { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
+                e: Pawn.new('black'), f: '   ', g: Pawn.new('black'), h: Pawn.new('black') },
+              { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+              { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+              { a: '   ', b: '   ', c: Bishop.new('white'), d: '   ', e: Pawn.new('white'), f: '   ', g: '   ', h: '   ' },
+              { a: '   ', b: '   ', c: Knight.new('white'), d: '   ', e: '   ', f: Knight.new('white'), g: '   ', h: '   ' },
+              { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
+                e: Pawn.new('black'), f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+              {
+                a: Rook.new('white'), b: '   ', c: Bishop.new('white'), d: Queen.new('white'),
+                e: King.new('white'), f: '   ', g: '   ', h: Rook.new('white')
+              }
+            ])
+          end
+
+          it 'returns array of possible moves for King without castling move' do
+            moves = board.possible_moves([7, :e])
+            castling_move = [7, :g]
+            expect(moves).not_to include(castling_move)
+          end
+        end
+      end
     end
 
     context 'when passed coordinate with Knight piece' do
@@ -84,7 +173,7 @@ describe Board do
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
           ])
           board.cells[3][:d].update_status
         end
@@ -106,7 +195,7 @@ describe Board do
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
           ])
         end
 
@@ -127,7 +216,7 @@ describe Board do
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
             { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
           ])
           board.cells[3][:d].update_status
         end
@@ -194,7 +283,7 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' }
         ])
       end
 
@@ -239,7 +328,7 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-          { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
         ])
         game.send(:switch_current_player)
         allow(board).to receive(:puts)
@@ -283,7 +372,7 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' }
         ])
       end
 
@@ -305,7 +394,7 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: King.new('black'), g: '   ', h: '   ' }
         ])
       end
 
@@ -349,10 +438,10 @@ describe Board do
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
           { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-          { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: Rook.new('white'), b: Queen.new('white'), c: King.new('white'), d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' }
         ])
         game.send(:switch_current_player)
-        allow(board).to receive(:puts) 
+        allow(board).to receive(:puts)
       end
 
       it 'returns true' do
@@ -361,6 +450,40 @@ describe Board do
       end
     end
   end
+
+  describe '#move_piece' do
+    context 'when castling' do
+      before do
+        board.instance_variable_set(:@cells, [
+            {
+              a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
+              e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
+            },
+            { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
+              e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: Bishop.new('white'), d: '   ', e: Pawn.new('white'), f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: Knight.new('white'), d: '   ', e: '   ', f: Knight.new('white'), g: '   ', h: '   ' },
+            { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
+              e: '   ', f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+            {
+              a: Rook.new('white'), b: '   ', c: Bishop.new('white'), d: Queen.new('white'),
+              e: King.new('white'), f: '   ', g: '   ', h: Rook.new('white')
+            }
+          ])
+      end
+
+      it 'moves Rook piece along with King piece' do
+        king_current_coord = [7, :e]
+        king_destination_coord = [7, :g]
+        board.move_piece(king_current_coord, king_destination_coord)
+        moved_rook_coord = [7, :f]
+        moved_rook_piece = board.piece_obj_from_coord(moved_rook_coord)
+        expect(moved_rook_piece).to be_a(Rook)
+      end
+    end
+  end
 end
 
-# rubocop:enable Metrics/BlockLength, Layout/LineLength
+# rubocop:enable Metrics/BlockLength, Layout/LineLength, Layout/FirstArrayElementIndentation

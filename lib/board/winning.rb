@@ -97,6 +97,8 @@ module Winning
 
   def king_cannot_escape_from_taking?(checker_team_color, receiver_team_color)
     king_moves = possible_moves(king_position(receiver_team_color))
+    return false if king_moves.empty?
+
     checker_player_moves = find_all_player_moves(checker_team_color)
     king_moves.all? { |move| checker_player_moves.include?(move) }
   end

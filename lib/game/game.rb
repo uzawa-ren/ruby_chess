@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'board'
+require_relative '../board/board'
 require_relative 'input'
 require_relative 'saving'
 
@@ -62,7 +62,6 @@ class Game
   end
 
   # rubocop:disable Style/MultilineTernaryOperator
-
   def hightlight_player_team
     current_player == 'white' ? current_player.capitalize.on_gray :
                                 current_player.capitalize.black.on_white

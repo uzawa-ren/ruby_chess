@@ -1,22 +1,24 @@
 # frozen_string_literal: true
 
 require 'colorize'
-require_relative 'pieces/bishop'
-require_relative 'pieces/king'
-require_relative 'pieces/knight'
-require_relative 'pieces/pawn'
-require_relative 'pieces/queen'
-require_relative 'pieces/rook'
+require_relative '../pieces/bishop'
+require_relative '../pieces/king'
+require_relative '../pieces/knight'
+require_relative '../pieces/pawn'
+require_relative '../pieces/queen'
+require_relative '../pieces/rook'
 require_relative 'display'
 require_relative 'moves_finding'
 require_relative 'moving'
 require_relative 'winning'
+require_relative 'castling'
 
 class Board
   include Display
   include MovesFinding
   include Moving
   include Winning
+  include Castling
   attr_reader :coord_to_move, :destination_coord, :game
   attr_accessor :cells
 

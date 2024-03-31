@@ -29,6 +29,7 @@ module MovesFinding
     end
   end
 
+  # rubocop:disable Style/OptionalBooleanParameter
   def find_next_coord(coord, direction, piece_color, without_verification = false)
     next_row = coord[0] + direction[0]
     next_letter = find_next_letter(coord, direction)
@@ -37,6 +38,7 @@ module MovesFinding
 
     next_coord unless invalid_next_move?(next_coord, coord, piece_color, direction)
   end
+  # rubocop:enable Style/OptionalBooleanParameter
 
   def find_next_letter(coord, direction)
     num_to_letter_dict = %i[a b c d e f g h]
@@ -59,9 +61,13 @@ module MovesFinding
     prev_cell = piece_obj_from_coord(prev_coord)
 
     return true if next_move_occupied_by_same_team?(cell, team_color) ||
-                   crashed_into_opponent_piece?(cell, prev_cell, team_color)
+                   already_crashed_into_opponent_piece?(cell, prev_cell, team_color)
 
-    invalid_pawn_move?(coord, prev_coord, team_color, direction) if prev_cell.instance_of?(Pawn)
+    if prev_cell.instance_of?(Pawn)
+      invalid_pawn_move?(coord, prev_coord, team_color, direction)
+    elsif prev_cell.instance_of?(King)
+      invalid_castling?(prev_coord, team_color, direction)
+    end
   end
 
   def next_move_occupied_by_same_team?(cell, piece_color)
@@ -70,7 +76,7 @@ module MovesFinding
     cell.color == piece_color
   end
 
-  def crashed_into_opponent_piece?(curr_cell, prev_cell, team_color)
+  def already_crashed_into_opponent_piece?(curr_cell, prev_cell, team_color)
     return false if empty_cell?(prev_cell)
 
     prev_cell.color != team_color && empty_cell?(curr_cell)

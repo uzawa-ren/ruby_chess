@@ -7,10 +7,11 @@ class Rook
     [+1, 0], [0, +1], [-1, 0], [0, -1]
   ].freeze
 
-  attr_reader :color
+  attr_reader :color, :moved
 
   def initialize(color)
     @color = color
+    @moved = false
   end
 
   def self.move_directions(_color)
@@ -27,6 +28,10 @@ class Rook
     elsif color == 'black'
       ' ♜ '.black
     end
+  end
+
+  def update_status
+    @moved = true
   end
 
   def ==(other)

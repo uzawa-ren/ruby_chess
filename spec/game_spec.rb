@@ -2,7 +2,7 @@
 
 # rubocop:disable Metrics/BlockLength
 
-require_relative '../lib/game'
+require_relative '../lib/game/game'
 require 'yaml'
 
 describe Game do
@@ -134,6 +134,8 @@ describe Game do
   describe '#save_game' do
     let(:cells) { game.board.instance_variable_get(:@cells) }
     let(:current_player) { game.instance_variable_get(:@current_player) }
+    let(:checks) { game.instance_variable_get(:@checks) }
+    let(:winners) { game.instance_variable_get(:@winners) }
 
     before do
       game.board.instance_variable_set(:@cells, [
@@ -165,7 +167,7 @@ describe Game do
         File.read(save_file),
         permitted_classes: [Bishop, King, Knight, Pawn, Queen, Rook, Symbol]
       )
-      actual_data = {cells:, current_player:} # rubocop:disable Lint/Syntax
+      actual_data = {cells:, current_player:, checks:, winners:} # rubocop:disable Lint/Syntax
       expect(saved_data).to eq(actual_data)
       File.delete(save_file)
     end
