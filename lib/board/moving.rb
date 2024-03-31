@@ -2,12 +2,15 @@ module Moving
   def move_piece(coord, destination_coord)
     piece = piece_obj_from_coord(coord)
     destination = piece_obj_from_coord(destination_coord)
-  
+
     notify_of_taking(piece, destination, destination_coord)
     update_moved_status(piece)
+
+    update_just_made_double_step_status(coord, destination_coord, piece)
+
     change_cells(piece, coord, destination_coord)
   end
-  
+
   private
 
   def notify_of_taking(taker, taked_piece, destination_coord)
@@ -31,6 +34,22 @@ module Moving
     piece.update_status
   end
 
+  def update_just_made_double_step_status(coord, destination_coord, piece)
+    team_color_for_dequeue = queue[0]&.color
+    if piece.is_a?(Pawn) && double_move?(coord, destination_coord)
+      piece.just_made_double_step = true
+      queue << piece
+    elsif team_color_for_dequeue == game.current_player
+      pawn_to_change_status = queue.shift
+      pawn_to_change_status.just_made_double_step = false
+    end
+  end
+
+  def double_move?(coord, destination_coord)
+    difference = destination_coord[0] - coord[0]
+    difference.abs == 2
+  end
+
   def change_cells(piece, coord, destination_coord)
     cells[destination_coord[0]][destination_coord[1]] = piece
     cells[coord[0]][coord[1]] = '   '
@@ -50,8 +69,6 @@ module Moving
     rook_coord = castling_rook_coord(side, team_color)
     row = destination_coord[0]
     rook_destination_coord = side == 'left' ? [row,  :d] : [row,  :f]
-    # rook_piece = piece_obj_from_coord(rook_coord)
-    # change_cells(rook_piece, rook_coord, rook_destination_coord)
 
     move_piece(rook_coord, rook_destination_coord)
   end

@@ -82,37 +82,6 @@ module MovesFinding
     prev_cell.color != team_color && empty_cell?(curr_cell)
   end
 
-  def invalid_pawn_move?(coord, prev_coord, team_color, direction)
-    case direction
-    when [+1, -1], [+1, +1], [-1, -1], [-1, +1] # diagonal attack
-      no_piece_to_take?(coord, team_color)
-    when [+1, 0], [-1, 0] # forward 1 square
-      occupied_coord?(coord)
-    when [+2, 0], [-2, 0] # forward 2 squares
-      moved?(prev_coord) || inbetween_coord_occupied?(coord, team_color)
-    else
-      false
-    end
-  end
-
-  def no_piece_to_take?(coord, team_color)
-    piece = piece_obj_from_coord(coord)
-    empty_cell?(piece) || next_move_occupied_by_same_team?(piece, team_color)
-  end
-
-  def moved?(coord)
-    piece = piece_obj_from_coord(coord)
-    return if empty_cell?(piece)
-
-    piece.moved
-  end
-
-  def inbetween_coord_occupied?(coord, team_color)
-    direction = team_color == 'white' ? [1, 0] : [-1, 0]
-    inbetween_coord = find_next_coord(coord, direction, team_color, true)
-    occupied_coord?(inbetween_coord)
-  end
-
   def find_coord_from_indexes(cell_index, row_index)
     [row_index, num_to_letter(cell_index)]
   end

@@ -227,6 +227,38 @@ describe Board do
           expect(moves).not_to include(double_step_move)
         end
       end
+
+      context 'when taking en-passant is possible' do
+        before do
+          board.instance_variable_set(:@cells, [
+            {
+              a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
+              e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
+            },
+            { a: Pawn.new('black'), b: Pawn.new('black'), c: '   ', d: Pawn.new('black'),
+              e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: Knight.new('white'), h: '   ' },
+            { a: '   ', b: '   ', c: Pawn.new('black'), d: Pawn.new('white'), e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+            { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: '   ',
+              e: Pawn.new('white'), f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+            {
+              a: Rook.new('white'), b: Knight.new('white'), c: Bishop.new('white'), d: Queen.new('white'),
+              e: King.new('white'), f: Bishop.new('white'), g: '   ', h: Rook.new('white')
+            }
+          ])
+          board.cells[4][:c].update_status
+          board.cells[4][:d].just_made_double_step = true
+          game.send(:switch_current_player)
+        end
+
+        it 'returns array of possible moves for Pawn with en-passant move' do
+          moves = board.possible_moves([4, :c])
+          available_moves = [[5, :c], [5, :d]]
+          expect(moves).to eql(available_moves)
+        end
+      end
     end
 
     context 'when passed coordinate with Queen piece' do
@@ -481,6 +513,26 @@ describe Board do
         moved_rook_coord = [7, :f]
         moved_rook_piece = board.piece_obj_from_coord(moved_rook_coord)
         expect(moved_rook_piece).to be_a(Rook)
+      end
+    end
+
+    context 'when making double move' do
+      it "sets the pawn's @just_made_double_step to true for 1 turn" do
+        pawn_current_coord = [6, :c]
+        pawn_destination_coord = [4, :c]
+        board.move_piece(pawn_current_coord, pawn_destination_coord)
+        moved_pawn_piece = board.piece_obj_from_coord(pawn_destination_coord)
+        expect(moved_pawn_piece.just_made_double_step).to be(true)
+      end
+
+      it 'then sets @just_made_double_step to false' do
+        board.move_piece([6, :c], [4, :c])
+        game.send(:switch_current_player)
+        board.move_piece([0, :b], [2, :a])
+        game.send(:switch_current_player)
+        board.move_piece([7, :g], [5, :h])
+        pawn_piece = board.piece_obj_from_coord([4, :c])
+        expect(pawn_piece.just_made_double_step).to be(false)
       end
     end
   end

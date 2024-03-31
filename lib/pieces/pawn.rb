@@ -8,10 +8,12 @@ class Pawn
   ].freeze
 
   attr_reader :color, :moved
+  attr_accessor :just_made_double_step
 
   def initialize(color)
     @color = color
     @moved = false
+    @just_made_double_step = false
   end
 
   def self.move_directions(color)

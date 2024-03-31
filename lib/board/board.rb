@@ -9,6 +9,7 @@ require_relative '../pieces/queen'
 require_relative '../pieces/rook'
 require_relative 'display'
 require_relative 'moves_finding'
+require_relative 'pawn_moves_finding'
 require_relative 'moving'
 require_relative 'winning'
 require_relative 'castling'
@@ -16,10 +17,11 @@ require_relative 'castling'
 class Board
   include Display
   include MovesFinding
+  include PawnMovesFinding
   include Moving
   include Winning
   include Castling
-  attr_reader :coord_to_move, :destination_coord, :game
+  attr_reader :coord_to_move, :destination_coord, :game, :queue
   attr_accessor :cells
 
   def initialize(game) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
@@ -42,6 +44,7 @@ class Board
       }
     ]
     @game = game
+    @queue = []
   end
 
   def show(possible_moves = [])
