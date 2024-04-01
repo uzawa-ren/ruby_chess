@@ -10,7 +10,7 @@ module PawnMovesFinding
     when [+2, 0], [-2, 0] # forward 2 squares
       moved?(prev_coord) || inbetween_coord_occupied?(coord, team_color)
     else
-      false # probably 'true', no?
+      true
     end
   end
 

@@ -1,4 +1,6 @@
 module Castling
+  private
+
   def invalid_castling?(prev_coord, team_color, direction)
     if direction == [0, -2]
       return true if invalid_castling_for_side?(team_color, prev_coord, 'left')
