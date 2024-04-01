@@ -9,9 +9,9 @@ class Rook
 
   attr_reader :color, :moved
 
-  def initialize(color)
+  def initialize(color, moved = false)
     @color = color
-    @moved = false
+    @moved = moved
   end
 
   def self.move_directions(_color)

@@ -535,6 +535,36 @@ describe Board do
         expect(pawn_piece.just_made_double_step).to be(false)
       end
     end
+
+    context 'when promoting a pawn' do
+      before do
+        board.instance_variable_set(:@cells, [
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: Pawn.new('black'), f: Pawn.new('black'), g: '   ', h: '   ' },
+          { a: Pawn.new('white'), b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
+            e: Pawn.new('white'), f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+          {
+            a: Rook.new('white'), b: Knight.new('white'), c: Bishop.new('white'), d: Queen.new('white'),
+            e: King.new('white'), f: Bishop.new('white'), g: Knight.new('white'), h: Rook.new('white')
+          }
+        ])
+        allow(board).to receive(:puts)
+        allow(game).to receive(:print)
+        allow(game).to receive(:gets).and_return('q')
+      end
+
+      it 'changes the pawn to piece of chosen type' do
+        current_pawn_coord = [1, :a]
+        last_in_row_coord = [0, :a]
+        board.move_piece(current_pawn_coord, last_in_row_coord)
+        promoted_piece = board.cells[0][:a]
+        expect(promoted_piece).to be_a(Queen)
+      end
+    end
   end
 end
 

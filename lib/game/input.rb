@@ -21,6 +21,16 @@ module Input
     end
   end
 
+  def user_input(prompt, regex)
+    loop do
+      print prompt
+      input = gets.chomp
+      return input if input.match(regex)
+
+      puts 'Input error!'.red
+    end
+  end
+
   private
 
   def user_wants_to_quit?(input, next_moves)
@@ -89,15 +99,5 @@ module Input
 
   def user_typed_r?(coord)
     coord.nil?
-  end
-
-  def user_input(prompt, regex)
-    loop do
-      print prompt
-      input = gets.chomp
-      return input if input.match(regex)
-
-      puts 'Input error!'.red
-    end
   end
 end
