@@ -7,6 +7,7 @@ require_relative '../pieces/knight'
 require_relative '../pieces/pawn'
 require_relative '../pieces/queen'
 require_relative '../pieces/rook'
+require_relative 'board_filling'
 require_relative 'display'
 require_relative 'moves_finding'
 require_relative 'pawn_moves_finding'
@@ -15,6 +16,7 @@ require_relative 'winning'
 require_relative 'castling'
 
 class Board
+  include BoardFilling
   include Display
   include MovesFinding
   include PawnMovesFinding
@@ -24,25 +26,8 @@ class Board
   attr_reader :coord_to_move, :destination_coord, :game, :queue
   attr_accessor :cells
 
-  def initialize(game) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
-    @cells = [
-      {
-        a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
-        e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
-      },
-      { a: Pawn.new('black'), b: Pawn.new('black'), c: Pawn.new('black'), d: Pawn.new('black'),
-        e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
-      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-      { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
-      { a: Pawn.new('white'), b: Pawn.new('white'), c: Pawn.new('white'), d: Pawn.new('white'),
-        e: Pawn.new('white'), f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
-      {
-        a: Rook.new('white'), b: Knight.new('white'), c: Bishop.new('white'), d: Queen.new('white'),
-        e: King.new('white'), f: Bishop.new('white'), g: Knight.new('white'), h: Rook.new('white')
-      }
-    ]
+  def initialize(game)
+    fill_board
     @game = game
     @queue = []
   end
