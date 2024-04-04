@@ -34,13 +34,27 @@ class Game
   attr_reader :quit
 
   def introduction
-    puts 'Welcome to command line Chess!'
-    puts 'Please write all coordinates like this: letter + number. Eg: d4'
-    puts 'Also keep in mind that if you load a game, the save will be deleted,'
-    puts "so please save the game again if you haven't finished it.\n\n"
+    puts welcome_message
     text = 'Would you like to play a new game [n] or load an existing one [l]? '
     user_choice = user_input(text, /[nl]/)
     load_game if user_choice == 'l'
+  end
+
+  def welcome_message
+    <<~HEREDOC
+      \e[35mWelcome to Chess!\e[0m
+
+      Each turn will be played in two steps.
+
+      \e[35mStep One:\e[0m
+      Enter the coordinate of the piece you want to move.
+
+      \e[35mStep Two:\e[0m
+      Enter the legal coordinate of the cell you want to move to.
+
+      \e[35mExample of how to input a coordinate:\e[0m d4
+
+    HEREDOC
   end
 
   def turns

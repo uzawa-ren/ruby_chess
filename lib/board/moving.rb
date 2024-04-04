@@ -92,11 +92,35 @@ module Moving
   end
 
   def change_cells(piece, coord, destination_coord)
+    if en_passant_move?(piece, coord, destination_coord)
+      take_pawn(piece, destination_coord)
+    elsif castling?(piece, coord, destination_coord)
+      move_castling_rook(coord, destination_coord)
+    end
     cells[destination_coord[0]][destination_coord[1]] = piece
     cells[coord[0]][coord[1]] = '   '
+  end
 
-    return unless castling?(piece, coord, destination_coord)
-    move_castling_rook(coord, destination_coord)
+  def en_passant_move?(piece, coord, destination_coord)
+    return unless piece.is_a?(Pawn)
+
+    has_difference_in_column?(coord, destination_coord) &&
+      goes_to_empty_cell?(destination_coord)
+  end
+
+  def has_difference_in_column?(coord, destination_coord)
+    coord[1] != destination_coord[1]
+  end
+
+  def goes_to_empty_cell?(destination_coord)
+    empty_cell_by_coord?(destination_coord)
+  end
+
+  def take_pawn(piece, destination_coord)
+    pawn_row = piece.color == 'white' ? destination_coord[0] + 1 :
+                                        destination_coord[0] - 1
+    pawn_column = destination_coord[1]
+    cells[pawn_row][pawn_column] = '   '
   end
 
   def castling?(piece, coord, destination_coord)

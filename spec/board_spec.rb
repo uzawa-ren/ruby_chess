@@ -517,6 +517,10 @@ describe Board do
     end
 
     context 'when making double move' do
+      before do
+        allow(board).to receive(:puts)
+      end
+
       it "sets the pawn's @just_made_double_step to true for 1 turn" do
         pawn_current_coord = [6, :c]
         pawn_destination_coord = [4, :c]
@@ -563,6 +567,40 @@ describe Board do
         board.move_piece(current_pawn_coord, last_in_row_coord)
         promoted_piece = board.cells[0][:a]
         expect(promoted_piece).to be_a(Queen)
+      end
+    end
+
+    context 'when taking en-passant' do
+      before do
+        board.instance_variable_set(:@cells, [
+          {
+            a: Rook.new('black'), b: Knight.new('black'), c: Bishop.new('black'), d: Queen.new('black'),
+            e: King.new('black'), f: Bishop.new('black'), g: Knight.new('black'), h: Rook.new('black')
+          },
+          { a: Pawn.new('black'), b: Pawn.new('black'), c: '   ', d: Pawn.new('black'),
+            e: Pawn.new('black'), f: Pawn.new('black'), g: Pawn.new('black'), h: Pawn.new('black') },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: Pawn.new('white'), c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: Pawn.new('black'), d: Pawn.new('white'), e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: '   ', b: '   ', c: '   ', d: '   ', e: '   ', f: '   ', g: '   ', h: '   ' },
+          { a: Pawn.new('white'), b: '   ', c: Pawn.new('white'), d: '   ',
+            e: Pawn.new('white'), f: Pawn.new('white'), g: Pawn.new('white'), h: Pawn.new('white') },
+          {
+            a: Rook.new('white'), b: Knight.new('white'), c: Bishop.new('white'), d: Queen.new('white'),
+            e: King.new('white'), f: Bishop.new('white'), g: Knight.new('white'), h: Rook.new('white')
+          }
+        ])
+        board.cells[4][:d].just_made_double_step = true
+        game.send(:switch_current_player)
+      end
+
+      it 'changes the pawn to piece of chosen type' do
+        current_pawn_coord = [4, :c]
+        taking_en_passant_coord = [5, :d]
+        board.move_piece(current_pawn_coord, taking_en_passant_coord)
+        taked_piece = board.cells[4][:d]
+        taked = board.empty_cell?(taked_piece)
+        expect(taked).to be(true)
       end
     end
   end
